@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marketplace</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Header Section -->
+    <header>
+        <h1>Market Place</h1>
+        <h2>Omri Arie is looking for a job</h2>
+    </header>
+
+    <!-- Navigation Menu -->
+    <nav>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="login.html">Login</a></li>
+            <li><a href="about.html">About</a></li>
+        </ul>
+    </nav>
+
+<!-- Product Table Section -->
+<section id="product-list">
+    <h3>Product List</h3>
+    <table id="product-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Price</th>
+                <th>Quantity</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Product rows will be inserted dynamically via JavaScript -->
+        </tbody>
+    </table>
+
+    <!-- Pagination Section -->
+    <div class="pagination-controls">
+        <button id="prev-button">Previous</button>
+        <span id="page-number">Page: 1</span> <!-- Display the current page number here -->
+        <button id="next-button">Next</button>
+    </div>
+</section>
+
+    <script src="app.js"></script>
+</body>
+</html>
