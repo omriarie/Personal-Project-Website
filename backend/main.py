@@ -1,52 +1,27 @@
 from fastapi import FastAPI, Depends
-from sqlalchemy import create_engine, Column, Integer, String, Float, DateTime
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
-from sqlalchemy.sql import func
-from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+from sqlalchemy import create_engine
+from fastapi import HTTPException
+from passlib.context import CryptContext
+from backend.models import Product
+from fastapi import HTTPException
+from backend.models import User
+
 
 
 # Database connection
 DATABASE_URL = "postgresql://postgres:159753@localhost:5432/marketplace_db"
-
-# Create the engine and sessionmaker
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-# Define the base class for models
-Base = declarative_base()
-
 app = FastAPI()
 
-
-
-# Define the Product model (SQLAlchemy model)
-class Product(Base):
-    __tablename__ = 'products'
-
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, index=True)
-    description = Column(String, nullable=False)
-    price = Column(Float, nullable=False)
-    quantity = Column(Integer, nullable=False)
-    date_added = Column(DateTime(timezone=True), server_default=func.now())
-
-# Pydantic model for API response
-class ProductResponse(BaseModel):
-    id: int
-    name: str
-    description: str
-    price: float
-    quantity: int
-
-    class Config:
-        orm_mode = True
-
-
+# Add CORS middleware to allow requests from frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Adjust this to be more specific if needed
+    allow_origins=["*"],  # Allow all origins for simplicity
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -61,17 +36,41 @@ def get_db():
     finally:
         db.close()
 
-# Endpoint to get all products from the database
+# Pydantic model for API response
+class ProductResponse(BaseModel):
+    id: int
+    name: str
+    description: str
+    price: float
+    quantity: int
+    image_url: str  # Add this line for the image URL
+
+    class Config:
+        orm_mode = True  # Enable ORM mode for SQLAlchemy models
+
+# Define the expected structure for the registration data
+class UserCreate(BaseModel):
+    first_name: str
+    last_name: str
+    email: str
+    password: str
+    full_address: str
+
+class LoginRequest(BaseModel):
+    email: str
+    password: str
+
+# Endpoint to get all products with pagination
 @app.get("/products", response_model=list[ProductResponse])
 def get_all_products(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
     products = db.query(Product).offset(skip).limit(limit).all()
     return products
 
-
+# Endpoint to calculate and return total pages
 @app.get("/total_pages", response_model=dict)
 def get_total_pages(limit: int = 10, db: Session = Depends(get_db)):
-    total_count = db.query(Product).count()  # Get the total number of products
-    total_pages = (total_count + limit - 1) // limit  # Calculate the number of pages
+    total_count = db.query(Product).count()  # Get total number of products
+    total_pages = (total_count + limit - 1) // limit  # Calculate number of pages
     return {"total_pages": total_pages}
 
 
@@ -100,3 +99,50 @@ def create_product(product: ProductResponse, db: Session = Depends(get_db)):
     db.refresh(new_product)
     return new_product
 
+
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+def get_password_hash(password):
+    return pwd_context.hash(password)
+
+# Password hashing context
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+def verify_password(plain_password, hashed_password):
+    return pwd_context.verify(plain_password, hashed_password)
+
+@app.post("/login")
+def login(request: LoginRequest, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.email == request.email).first()
+    
+    if not user:
+        raise HTTPException(status_code=400, detail="Invalid email or password")
+    
+    if not verify_password(request.password, user.password):  
+        raise HTTPException(status_code=400, detail="Invalid email or password")
+    
+    return {"message": "Login successful", "user_id": user.id}
+
+# Registration endpoint
+@app.post("/register")
+def register(user: UserCreate, db: Session = Depends(get_db)):
+    existing_user = db.query(User).filter(User.email == user.email).first()
+    if existing_user:
+        raise HTTPException(status_code=400, detail="Email already registered")
+
+    hashed_password = get_password_hash(user.password)
+    
+    new_user = User(
+        first_name=user.first_name,
+        last_name=user.last_name,
+        email=user.email,
+        password=hashed_password,
+        full_address=user.full_address
+    )
+    
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+    
+    return {"message": "Registration successful", "user_id": new_user.id}

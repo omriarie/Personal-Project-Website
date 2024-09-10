@@ -54,19 +54,79 @@ nav ul li a:hover {
     text-decoration: underline;
 }
 
+/* Form Styles (Login and Signup) */
+section {
+    max-width: 400px;
+    margin: 20px auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    background-color: #fff;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+label {
+    margin-top: 10px;
+}
+
+input {
+    padding: 8px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+button {
+    margin-top: 20px;
+    padding: 10px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+#error-message {
+    margin-top: 10px;
+    color: red;
+    display: none;
+}
+
+p {
+    text-align: center;
+    margin-top: 15px;
+}
+
 /* Product Table Styles */
 #product-list {
     margin: 20px auto;
-    width: 80%;
+    width: 90%; /* Limit the container width to 90% of the page */
+    max-width: 1200px; /* Maximum width of the container */
     background-color: white; /* White background for the product table */
     padding: 20px;
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1); /* Slight shadow for a raised look */
+    border-radius: 10px; /* Rounded corners for a cleaner look */
 }
 
 #product-table {
-    width: 100%;
+    width: 100%; /* Make sure the table takes the full width of its container */
     border-collapse: collapse;
-    background-color: white; /* White background for table */
+    background-color: white;
+}
+
+#product-table img {
+    max-width: 100px;
+    height: auto;
+    display: block;
 }
 
 #product-table th, #product-table td {
@@ -93,6 +153,7 @@ nav ul li a:hover {
     margin-bottom: 20px;
 }
 
+/* Pagination Controls */
 .pagination-controls {
     text-align: center;
     margin: 20px 0;
@@ -121,4 +182,3 @@ nav ul li a:hover {
     font-size: 1.2em;
     margin: 0 10px;
 }
-

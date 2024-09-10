@@ -14,6 +14,7 @@ async function fetchTotalPages() {
 }
 
 // Function to fetch products with pagination
+// Function to fetch products with pagination
 async function fetchProducts(page = 0) {
     const skip = page * limit;
     try {
@@ -33,6 +34,7 @@ async function fetchProducts(page = 0) {
             
             row.innerHTML = `
                 <td>${product.id}</td>
+                <td><img src="${product.image_url}" alt="${product.name}" style="max-width: 100px;"></td> <!-- Image column -->
                 <td>${product.name}</td>
                 <td>${product.description}</td>
                 <td>${product.price}</td>
@@ -55,6 +57,7 @@ async function fetchProducts(page = 0) {
         console.error('Error fetching products:', error);
     }
 }
+
 
 // Event listeners for pagination buttons
 document.querySelector("#next-button").addEventListener("click", () => {
