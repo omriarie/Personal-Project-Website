@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Header Section -->
+    <header>
+        <h1>Market Place</h1>
+        <h2>Omri Arie is looking for a job</h2>
+    </header>
+
+    <!-- Navigation Menu -->
+    <nav>
+        <ul>
+            <li><a href="index.html">Main Page</a></li>
+            <li><a href="about.html">About</a></li>
+            <li><a href="user_dash.html" class="button">User Dash</a></li>
+            <li><button id="logout-button" class="button">Logout</button></li>
+        </ul>
+    </nav>
+
+    <!-- User Info -->
+    <div id="user-info" class="user-info-row">
+        <p class="hello-message">Hello, <span id="user-name"></span>! These are your products:</p>
+    </div>
+
+    <!-- Product List -->
+    <section id="product-list">
+        <h3>Your Products</h3>
+        <table id="user-product-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Image</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Products will be dynamically inserted here -->
+            </tbody>
+        </table>
+    </section>
+
+    <!-- Add Product Form -->
+    <section id="add-product-form">
+        <form id="new-product-form">
+            <h3>Add New Product</h3>
+            <label for="name">Product Name:</label>
+            <input type="text" id="name" name="name" required>
+
+            <label for="description">Description:</label>
+            <textarea id="description" name="description" required></textarea>
+
+            <label for="price">Price:</label>
+            <input type="number" id="price" name="price" required>
+
+            <label for="quantity">Quantity:</label>
+            <input type="number" id="quantity" name="quantity" required>
+
+            <label for="image">Upload Image:</label>
+            <input type="file" id="image" name="image" required>
+
+            <button type="submit">Add Product</button>
+        </form>
+    </section>
+
+    <script src="user_dash.js"></script>
+</body>
+</html>

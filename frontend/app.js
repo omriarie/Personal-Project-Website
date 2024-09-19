@@ -1,5 +1,5 @@
 let currentPage = 0;
-const limit = 10; // Limit set to 1 for testing
+const limit = 10; // Limit set to 10 for standard display
 let totalPages = 0; // Total number of pages
 
 // Function to fetch total pages from the backend
@@ -13,7 +13,6 @@ async function fetchTotalPages() {
     }
 }
 
-// Function to fetch products with pagination
 // Function to fetch products with pagination
 async function fetchProducts(page = 0) {
     const skip = page * limit;
@@ -34,10 +33,10 @@ async function fetchProducts(page = 0) {
             
             row.innerHTML = `
                 <td>${product.id}</td>
-                <td><img src="${product.image_url}" alt="${product.name}" style="max-width: 100px;"></td> <!-- Image column -->
+                <td><img src="/static/uploads/${product.image}" alt="${product.name}" style="max-width: 100px;"></td> <!-- Image column -->
                 <td>${product.name}</td>
                 <td>${product.description}</td>
-                <td>${product.price}</td>
+                <td>$${product.price}</td>
                 <td>${product.quantity}</td>
             `;
             
@@ -56,8 +55,18 @@ async function fetchProducts(page = 0) {
     } catch (error) {
         console.error('Error fetching products:', error);
     }
-}
 
+    // Logout button functionality
+    document.getElementById('logout-button').addEventListener('click', function () {
+        // Clear localStorage to log the user out
+        localStorage.removeItem('user_id');
+        localStorage.removeItem('first_name');
+        localStorage.removeItem('Token');  // Ensure the token is cleared
+
+        // Redirect to the login page
+        window.location.href = "login.html";
+    });
+}
 
 // Event listeners for pagination buttons
 document.querySelector("#next-button").addEventListener("click", () => {

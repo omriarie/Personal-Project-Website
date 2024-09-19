@@ -1,23 +1,24 @@
-from sqlalchemy import Column, Integer, String, Float, DateTime, Text, Boolean
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey
+from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
 Base = declarative_base()
 
 # Define the Product model (SQLAlchemy model)
 class Product(Base):
-    __tablename__ = 'products'
+    __tablename__ = "products"
 
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, index=True)
+    name = Column(String, index=True, nullable=False)
     description = Column(String, nullable=False)
     price = Column(Float, nullable=False)
     quantity = Column(Integer, nullable=False)
-    date_added = Column(DateTime(timezone=True), server_default=func.now())
-    image_url = Column(String, nullable=True)  # Add this line to store image URL
+    image = Column(String, nullable=True)  # Add this line
+    user_id = Column(Integer, ForeignKey("users.id"))
+    user = relationship("User", back_populates="products")
 
 
-#Define the User model
 class User(Base):
     __tablename__ = 'users'
 
@@ -25,8 +26,6 @@ class User(Base):
     first_name = Column(String, nullable=False)
     last_name = Column(String, nullable=False)
     email = Column(String, unique=True, nullable=False)
-    password = Column(String, nullable=False)  # Storing hashed password
-    full_address = Column(Text, nullable=False)
-    cart = Column(Text, nullable=True)  # Placeholder for cart logic (you can adjust this later)
-    is_admin = Column(Boolean, default=False)  # Optional: Add admin privileges if needed
-    
+    password = Column(String, nullable=False)
+    full_address = Column(String, nullable=False)
+    products = relationship("Product", back_populates="user") 

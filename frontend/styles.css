@@ -3,15 +3,15 @@ body {
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
-    background-color: #f0f0f0; /* Light background color */
-    color: #333; /* Dark text for readability */
+    background-color: #f0f0f0;
+    color: #333;
 }
 
 /* Header Styles */
 header {
     text-align: center;
-    background-color: #4CAF50; /* Green color for the header */
-    color: white; /* White text for contrast */
+    background-color: #4CAF50;
+    color: white;
     padding: 20px 0;
 }
 
@@ -28,7 +28,7 @@ header h2 {
 
 /* Navigation Styles */
 nav {
-    background-color: #333; /* Dark background for the navigation bar */
+    background-color: #333;
     padding: 10px 0;
 }
 
@@ -44,81 +44,52 @@ nav ul li {
     margin: 0 15px;
 }
 
-nav ul li a {
-    color: white; /* White text for navigation links */
+nav ul li a, nav ul li button {
+    color: white;
     text-decoration: none;
     font-size: 1.2em;
-}
-
-nav ul li a:hover {
-    text-decoration: underline;
-}
-
-/* Form Styles (Login and Signup) */
-section {
-    max-width: 400px;
-    margin: 20px auto;
-    padding: 20px;
-    border: 1px solid #ccc;
-    border-radius: 10px;
-    background-color: #fff;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-}
-
-form {
-    display: flex;
-    flex-direction: column;
-}
-
-label {
-    margin-top: 10px;
-}
-
-input {
-    padding: 8px;
-    margin-top: 5px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-}
-
-button {
-    margin-top: 20px;
-    padding: 10px;
-    background-color: #4CAF50;
-    color: white;
+    background-color: #333;
+    padding: 10px 20px;
     border: none;
     border-radius: 5px;
     cursor: pointer;
 }
 
-button:hover {
-    background-color: #45a049;
+nav ul li a:hover, nav ul li button:hover {
+    background-color: #6b6060;
 }
 
-#error-message {
-    margin-top: 10px;
-    color: red;
-    display: none;
+/* User Info Row Styles */
+.user-info-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    background-color: #fff;
+    margin: 10px auto;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    width: 80%;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
 }
 
-p {
-    text-align: center;
-    margin-top: 15px;
+.hello-message {
+    font-size: 1.5em;
 }
 
 /* Product Table Styles */
 #product-list {
     margin: 20px auto;
-    width: 90%; /* Limit the container width to 90% of the page */
-    max-width: 1200px; /* Maximum width of the container */
-    background-color: white; /* White background for the product table */
+    width: 90%;
+    max-width: 1200px;
+    background-color: white;
     padding: 20px;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1); /* Slight shadow for a raised look */
-    border-radius: 10px; /* Rounded corners for a cleaner look */
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
 }
 
 #product-table {
-    width: 100%; /* Make sure the table takes the full width of its container */
+    width: 100%;
     border-collapse: collapse;
     background-color: white;
 }
@@ -136,22 +107,61 @@ p {
 }
 
 #product-table th {
-    background-color: #4CAF50; /* Green header background for table */
+    background-color: #4CAF50;
     color: white;
 }
 
 #product-table tr:nth-child(even) {
-    background-color: #f2f2f2; /* Light gray for alternate rows */
+    background-color: #f2f2f2;
 }
 
 #product-table tr:hover {
-    background-color: #ddd; /* Light gray for hover effect */
+    background-color: #ddd;
 }
 
 #product-list h3 {
     text-align: center;
     margin-bottom: 20px;
 }
+
+
+
+#user-product-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: white;
+}
+
+#user-product-table img {
+    max-width: 100px;
+    height: auto;
+    display: block;
+}
+
+#user-product-table th, #user-product-table td {
+    border: 1px solid #ddd;
+    padding: 12px;
+    text-align: left;
+}
+
+#user-product-table th {
+    background-color: #4CAF50;
+    color: white;
+}
+
+#user-product-table tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+#user-product-table tr:hover {
+    background-color: #ddd;
+}
+
+#user-product-table h3 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
 
 /* Pagination Controls */
 .pagination-controls {
@@ -181,4 +191,50 @@ p {
 .pagination-controls #page-number {
     font-size: 1.2em;
     margin: 0 10px;
+}
+
+/* Form Styles (for Sign In/Sign Up and Product Forms) */
+form {
+    margin: 20px auto;
+    width: 80%;
+    max-width: 500px;
+    background-color: white;
+    padding: 20px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+}
+
+form label {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 1.2em;
+}
+
+form input, form textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+form button {
+    width: 100%;
+    padding: 10px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 1.2em;
+    cursor: pointer;
+}
+
+form button:hover {
+    background-color: #45a049;
+}
+
+
+#add-product-form h3 {
+    text-align: center;
+    margin-top: 20px; /* Adjust as needed for spacing */
 }

@@ -15,40 +15,62 @@
 
     <!-- Navigation Menu -->
     <nav>
-        <ul>
+        <ul id="nav-links">
             <li><a href="index.html">Main Page</a></li>
-            <li><a href="login.html">Login</a></li> <!-- Add Login Link -->
             <li><a href="about.html">About</a></li>
+            <li id="private-page-link" style="display: none;"><a href="user_dash.html" class="button">User Dash</a></li>
+            <li id="logout-button" style="display: none;"><button>Logout</button></li>
+
         </ul>
     </nav>
 
-<!-- Product Table Section -->
-<section id="product-list">
-    <h3>Product List</h3>
-    <table id="product-table">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Image</th>
-                <th>Name</th>
-                <th>Description</th>
-                <th>Price</th>
-                <th>Quantity</th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- Product rows will be inserted dynamically via JavaScript -->
-        </tbody>
-    </table>
-
-    <!-- Pagination Section -->
-    <div class="pagination-controls">
-        <button id="prev-button">Previous</button>
-        <span id="page-number">Page: 1</span> <!-- Display the current page number here -->
-        <button id="next-button">Next</button>
+    <!-- User Info Section (dynamically filled by JavaScript) -->
+    <div id="user-info" class="user-info-row">
+        <!-- Content will be added by JavaScript -->
     </div>
-</section>
+
+    <!-- Product Table Section -->
+    <section id="product-list">
+        <h3>Product List</h3>
+        <table id="product-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Image</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Product rows will be inserted dynamically via JavaScript -->
+            </tbody>
+        </table>
+    
+        <!-- Pagination Section -->
+        <div class="pagination-controls">
+            <button id="prev-button">Previous</button>
+            <span id="page-number">Page: 1</span>
+            <button id="next-button">Next</button>
+        </div>
+    </section>
+    
 
     <script src="app.js"></script>
+
+    <script>
+        const firstName = localStorage.getItem('first_name');
+        if (firstName) {
+            // If user is logged in, show "Hello, [name]" and "User Dash" + "Logout" buttons
+            document.getElementById('user-info').innerHTML = `<p class="hello-message">Hello, ${firstName}!</p>`;
+            document.getElementById('private-page-link').style.display = 'inline-block';
+            document.getElementById('logout-button').style.display = 'inline-block';
+        } else {
+            // If no user is logged in, show "Sign In" link in the navigation bar
+            document.getElementById('nav-links').innerHTML += `<li><a href="login.html" class="button">Sign In</a></li>`;
+        }
+
+    </script>
 </body>
 </html>
