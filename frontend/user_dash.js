@@ -127,19 +127,19 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 // Function to delete a product
 async function deleteProduct(productId) {
-    const token = localStorage.getItem('Token');  // Retrieve the token
+    const token = localStorage.getItem('Token');
 
     try {
         const response = await fetch(`http://127.0.0.1:8000/products/${productId}`, {
             method: 'DELETE',
             headers: {
-                'Authorization': `Bearer ${token}`  // Send the token in the request header
+                'Authorization': `Bearer ${token}`
             }
         });
 
         if (response.ok) {
             alert('Product deleted successfully');
-            window.location.reload(); // Reload the page after deletion
+            window.location.reload();
         } else {
             alert('Failed to delete product');
         }

@@ -32,12 +32,13 @@ async function fetchProducts(page = 0) {
             const row = document.createElement('tr');
             
             row.innerHTML = `
-                <td>${product.id}</td>
-                <td><img src="/static/uploads/${product.image}" alt="${product.name}" style="max-width: 100px;"></td> <!-- Image column -->
-                <td>${product.name}</td>
-                <td>${product.description}</td>
-                <td>$${product.price}</td>
-                <td>${product.quantity}</td>
+            <td>${product.id}</td>
+            <td><img src="/static/uploads/${product.image}" alt="${product.name}" style="max-width: 100px;"></td>
+            <td>${product.name}</td>
+            <td>${product.description}</td>
+            <td>$${product.price}</td>
+            <td>${product.quantity}</td>
+            <td>${product.full_address || 'N/A'}</td> <!-- Safeguard in case full_address is undefined -->
             `;
             
             tableBody.appendChild(row);  // Append the row to the table

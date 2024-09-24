@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Depends, File, UploadFile, Form, HTTPException, status
-from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy.orm import sessionmaker, Session, joinedload
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from sqlalchemy import create_engine
@@ -8,9 +8,11 @@ from fastapi.security import OAuth2PasswordBearer
 from fastapi.staticfiles import StaticFiles
 from datetime import timedelta, datetime
 from jose import JWTError, jwt
-from backend.models import Product, User
+from backend.models import CartAction, Product, User,ProductResponse, UserCreate, LoginRequest, ProductCreate, Cart
 import shutil
 import os
+
+
 
 # Settings
 SECRET_KEY = "your_secret_key"
@@ -51,34 +53,6 @@ def get_db():
     finally:
         db.close()
 
-# Pydantic models
-class ProductResponse(BaseModel):
-    id: int
-    name: str
-    description: str
-    price: float
-    quantity: int
-    image: str
-
-    class Config:
-        from_attributes = True
-
-class ProductCreate(BaseModel):
-    name: str
-    description: str
-    price: float
-    quantity: int
-
-class UserCreate(BaseModel):
-    first_name: str
-    last_name: str
-    email: str
-    password: str
-    full_address: str
-
-class LoginRequest(BaseModel):
-    email: str
-    password: str
 
 # Password hashing
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -120,8 +94,30 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
 # Endpoints
 @app.get("/products", response_model=list[ProductResponse])
 def get_all_products(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
-    products = db.query(Product).offset(skip).limit(limit).all()
-    return products
+    products = (
+        db.query(Product, User.full_address)
+        .join(User, Product.user_id == User.id)
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
+
+    # Combine the product details with the user's full address
+    product_data = [
+        {
+            "id": product.id,
+            "name": product.name,
+            "description": product.description,
+            "price": product.price,
+            "quantity": product.quantity,
+            "image": product.image,
+            "full_address": full_address  # Add full address to the product data
+        }
+        for product, full_address in products
+    ]
+
+    return product_data
+
 
 @app.get("/total_pages", response_model=dict)
 def get_total_pages(limit: int = 10, db: Session = Depends(get_db)):
@@ -191,56 +187,92 @@ def login(request: LoginRequest, db: Session = Depends(get_db)):
 
     return {"token": access_token, "token_type": "bearer", "user_id": user.id, "first_name": user.first_name}
 
-@app.post("/products")
-async def create_product(
-    name: str = Form(...),
-    description: str = Form(...),
-    price: float = Form(...),
-    quantity: int = Form(...),
-    image: UploadFile = File(...),
-    db: Session = Depends(get_db),
-    token: str = Depends(oauth2_scheme)
-):
-    print(f"Received token: {token}")
-    
-    # In your product creation endpoint
+
+@app.get("/user_products/{user_id}", response_model=list[ProductResponse])
+def get_user_products(user_id: int, db: Session = Depends(get_db)):
+    products = db.query(Product).options(joinedload(Product.user)).filter(Product.user_id == user_id).all()
+
+    # Map full_address from user to each product response
+    product_responses = []
+    for product in products:
+        product_response = ProductResponse(
+            id=product.id,
+            name=product.name,
+            description=product.description,
+            price=product.price,
+            quantity=product.quantity,
+            image=product.image,
+            full_address=product.user.full_address  # Fetch full_address from the related User
+        )
+        product_responses.append(product_response)
+
+    return product_responses
+
+
+
+@app.delete("/products/{product_id}")
+def delete_product(product_id: int, db: Session = Depends(get_db), token: str = Depends(oauth2_scheme)):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         user_id = payload.get("sub")
         expire_time = payload.get("exp")
-        print(f"Token expiration time: {expire_time}")  # Log the expiration time for debugging
-
+        
         if datetime.utcfromtimestamp(expire_time) < datetime.utcnow():
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token has expired")
 
         user = db.query(User).filter(User.id == int(user_id)).first()
         if user is None:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")
+        
+        # Fetch the product
+        product = db.query(Product).filter(Product.id == product_id, Product.user_id == user.id).first()
+        if product is None:
+            raise HTTPException(status_code=404, detail="Product not found or unauthorized")
+        
+        # Delete the product
+        db.delete(product)
+        db.commit()
+        return {"message": "Product deleted successfully"}
+
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token has expired")
     except JWTError as e:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
+    
 
 
-    # Proceed to add the product
-    new_product = Product(
-        name=name,
-        description=description,
-        price=price,
-        quantity=quantity,
-        image=image.filename,
-        user_id=user.id
-    )
-    db.add(new_product)
+# Route to add an item to the cart
+@app.post("/cart")
+def add_to_cart(action: CartAction, db: Session = Depends(get_db), user_id: int = Depends(get_current_user)):
+    # Check if product exists
+    product = db.query(Product).filter(Product.id == action.product_id).first()
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    
+    # Check if the item is already in the cart
+    cart_item = db.query(Cart).filter(Cart.user_id == user_id, Cart.product_id == action.product_id).first()
+    if cart_item:
+        cart_item.quantity += action.quantity
+    else:
+        cart_item = Cart(user_id=user_id, product_id=action.product_id, quantity=action.quantity)
+        db.add(cart_item)
+
     db.commit()
-    db.refresh(new_product)
+    return {"message": "Item added to cart"}
 
-    return {"message": "Product created successfully", "product_id": new_product.id}
+# Route to view the cart
+@app.get("/cart")
+def view_cart(db: Session = Depends(get_db), user_id: int = Depends(get_current_user)):
+    cart_items = db.query(Cart).filter(Cart.user_id == user_id).all()
+    return cart_items
 
-
-@app.get("/user_products/{user_id}", response_model=list[ProductResponse])
-def get_user_products(user_id: int, db: Session = Depends(get_db)):
-    products = db.query(Product).filter(Product.user_id == user_id).all()
-    if not products:
-        raise HTTPException(status_code=404, detail="No products found for this user.")
-    return products
+# Route to remove an item from the cart
+@app.delete("/cart/{product_id}")
+def remove_from_cart(product_id: int, db: Session = Depends(get_db), user_id: int = Depends(get_current_user)):
+    cart_item = db.query(Cart).filter(Cart.user_id == user_id, Cart.product_id == product_id).first()
+    if not cart_item:
+        raise HTTPException(status_code=404, detail="Item not found in cart")
+    
+    db.delete(cart_item)
+    db.commit()
+    return {"message": "Item removed from cart"}

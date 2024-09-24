@@ -1,37 +1,61 @@
-document.getElementById('signup-form').addEventListener('submit', async function (e) {
-    e.preventDefault();
+let autocomplete;
+let addressField;
 
-    const firstName = document.getElementById('first_name').value;
-    const lastName = document.getElementById('last_name').value;
-    const fullAddress = document.getElementById('full_address').value;
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
+function initAutocomplete() {
+    // Get the input element for the address
+    addressField = document.querySelector("#full_address");
 
-    try {
-        const response = await fetch('http://127.0.0.1:8000/register', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                first_name: firstName,
-                last_name: lastName,
-                full_address: fullAddress,
-                email: email,
-                password: password
-            }),
-        });
+    // Create the autocomplete object, restricting the search predictions to addresses in Israel
+    autocomplete = new google.maps.places.Autocomplete(addressField, {
+        componentRestrictions: { country: "IL" },  // Restrict to Israel
+        types: ["geocode"]  // Only geocoded results (addresses)
+    });
 
-        const result = await response.json();
+    // Add an event listener to handle when a user selects an address
+    autocomplete.addListener("place_changed", fillInAddress);
+}
 
-        if (response.ok) {
-            alert('Sign-up successful');
-            window.location.href = "login.html";  // Redirect to login page
-        } else {
-            document.getElementById('error-message').style.display = 'block';
+// Function to handle filling in the address
+function fillInAddress() {
+    // Get the place details from the autocomplete object
+    const place = autocomplete.getPlace();
+    
+    // Initialize the full address string
+    let fullAddress = "";
+
+    // Loop through each component of the address
+    for (const component of place.address_components) {
+        const componentType = component.types[0];
+
+        // Concatenate the address components to form a full address string
+        switch (componentType) {
+            case "street_number":
+                fullAddress = `${component.long_name} ${fullAddress}`;
+                break;
+            case "route":
+                fullAddress += component.short_name;
+                break;
+            case "locality":
+                fullAddress += `, ${component.long_name}`;
+                break;
+            case "administrative_area_level_1":
+                fullAddress += `, ${component.short_name}`;
+                break;
+            case "country":
+                fullAddress += `, ${component.long_name}`;
+                break;
+            case "postal_code":
+                fullAddress += `, ${component.long_name}`;
+                break;
         }
-    } catch (error) {
-        console.error('Error:', error);
-        document.getElementById('error-message').style.display = 'block';
     }
-});
+
+    // Set the full address to the address field
+    addressField.value = fullAddress;
+
+    // Log the full address to debug if needed
+    console.log("Selected full address:", fullAddress);
+}
+
+// Initialize the autocomplete on window load
+window.onload = initAutocomplete;
